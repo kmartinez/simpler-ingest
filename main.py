@@ -1,6 +1,7 @@
 from flask import Flask, request, abort
 from forms import *
 from models import *
+from peewee import IntegrityError
 
 app = Flask(__name__)
 
@@ -37,6 +38,10 @@ def main():
             raise NotImplementedError(f"Form type {type(item)} has no conversion to models")
         
         for item in items_to_save:
-            item.save()
+            try:
+                item.save()
+            except IntegrityError as e:
+                #NOTE: this may be too inclusive but it's probably fine
+                print(f"Item skipped!: {str(e)}")
     
     return "OK"

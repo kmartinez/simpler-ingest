@@ -33,6 +33,7 @@ class GPSReading(Model):
     class Meta:
         database = db
         table_name = "tracker_data"
+        constraints = [SQL('UNIQUE (rover_id, timestamp)')]
 
 class VoltageReading(Model):
     id = AutoField() # An Integer, auto increment primary key
@@ -57,6 +58,7 @@ class VoltageReading(Model):
     class Meta:
         database = db
         table_name = "voltage_readings_2023"
+        constraints = [SQL('UNIQUE (rover_id, timestamp)')]
 
 class TemperatureReading(Model):
     id = AutoField() # An Integer, auto increment primary key
@@ -81,3 +83,4 @@ class TemperatureReading(Model):
     class Meta:
         database = db
         table_name = "temperature_readings_2023"
+        constraints = [SQL('UNIQUE (rover_id, timestamp)')]
