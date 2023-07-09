@@ -2,13 +2,56 @@ from flask import Flask, request, abort
 from forms import *
 from models import *
 from peewee import IntegrityError
+import csv
+import time
 
 app = Flask(__name__)
 
 db.create_tables([GPSReading, VoltageReading, TemperatureReading])
 
-@app.route('/', methods=['POST'])
-def main():
+
+@app.route("/<id>", methods=["GET"])
+def retrieve(id):
+    id = int(id)
+
+    items = (TemperatureReading.select(
+        TemperatureReading.rover_id.alias("rover_id"),
+        TemperatureReading.timestamp.alias("timestamp"),
+        GPSReading.latitude.alias("lat"),
+        GPSReading.longitude.alias("long"),
+        GPSReading.altitude.alias("alt"),
+        VoltageReading.value.alias("voltage"),
+        TemperatureReading.value.alias("temperature")
+    ).join(
+        VoltageReading,
+        on=(TemperatureReading.rover_id == VoltageReading.rover_id and TemperatureReading.timestamp == VoltageReading.timestamp)
+    ).join(
+        GPSReading,
+        JOIN.LEFT_OUTER,
+        on=(TemperatureReading.rover_id == GPSReading.rover_id and TemperatureReading.timestamp == GPSReading.timestamp)
+    ).where(TemperatureReading.rover_id == id)
+    .order_by(TemperatureReading.timestamp))
+
+    dicts = []
+    for item in items.objects():
+        # print(item.__dir__())
+        new_dict = {
+            "rover_id": item.rover_id,
+            "timestamp": item.timestamp,
+            "lat": item.lat,
+            "long": item.long,
+            "alt": item.alt,
+            "voltage": item.voltage,
+            "temperature": item.temperature
+        }
+        # print(new_dict)
+        dicts.append(new_dict)
+    
+    return dicts
+
+
+@app.route("/", methods=["POST"])
+def ingest():
     data = request.json
 
     forms = []
@@ -18,12 +61,16 @@ def main():
                 forms.append(BaseDataForm.from_json(item))
             elif "rover_id" in item.keys():
                 forms.append(RoverDataForm.from_json(item))
-            else: raise ValueError("JSON does not contain required fields")
+            else:
+                raise ValueError("JSON does not contain required fields")
         except ValueError as e:
-            abort(400, f"""JSON item is invalid:
+            abort(
+                400,
+                f"""JSON item is invalid:
                   {item}
-                  {str(e)}""")
-    
+                  {str(e)}""",
+            )
+
     for form in forms:
         items_to_save = []
 
@@ -35,13 +82,15 @@ def main():
             items_to_save.append(VoltageReading.from_base_form(form))
             items_to_save.append(TemperatureReading.from_base_form(form))
         else:
-            raise NotImplementedError(f"Form type {type(item)} has no conversion to models")
-        
+            raise NotImplementedError(
+                f"Form type {type(item)} has no conversion to models"
+            )
+
         for item in items_to_save:
             try:
                 item.save()
             except IntegrityError as e:
-                #NOTE: this may be too inclusive but it's probably fine
+                # NOTE: this may be too inclusive but it's probably fine
                 print(f"Item skipped!: {str(e)}")
-    
+
     return "OK"
