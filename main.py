@@ -14,6 +14,7 @@ db.create_tables([GPSReading, VoltageReading, TemperatureReading])
 def retrieve(id):
     id = int(id)
 
+    # joins the tables based on rover_id and timestamp combined
     items = (TemperatureReading.select(
         TemperatureReading.rover_id.alias("rover_id"),
         TemperatureReading.timestamp.alias("timestamp"),
@@ -34,7 +35,8 @@ def retrieve(id):
 
     dicts = []
     for item in items.objects():
-        # print(item.__dir__())
+        # spent multiple real time hours to find out that you need to use .objects()
+        # don't be like me
         new_dict = {
             "rover_id": item.rover_id,
             "timestamp": item.timestamp,
@@ -44,7 +46,6 @@ def retrieve(id):
             "voltage": item.voltage,
             "temperature": item.temperature
         }
-        # print(new_dict)
         dicts.append(new_dict)
     
     return dicts
@@ -90,6 +91,8 @@ def ingest():
             try:
                 item.save()
             except IntegrityError as e:
+                # skips individual items that can't be inserted for some reason
+                # this is usually because it's a duplicate entry (and conflicts based on rover id and timestamp)
                 # NOTE: this may be too inclusive but it's probably fine
                 print(f"Item skipped!: {str(e)}")
 

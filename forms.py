@@ -32,6 +32,7 @@ class RoverDataForm:
     longitude: str
 
     def from_json(json):
+        # boring validation code
         instance = RoverDataForm()
         try:
             instance.rover_id = int(json["rover_id"])
