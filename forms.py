@@ -1,4 +1,4 @@
-#These define what the data from the base and rovers that comes in should look like
+#Class properties are deliberately named exactly the same as their JSON counterparts
 class BaseDataForm:
     id: int
     temp: float

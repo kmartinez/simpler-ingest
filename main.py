@@ -1,13 +1,10 @@
 from flask import Flask, request, abort
-from peewee import SqliteDatabase
 from forms import *
-from enum import Enum
 from models import *
-from datetime import datetime
 
 app = Flask(__name__)
 
-db.create_tables([GPSReading, VoltageReading])
+db.create_tables([GPSReading, VoltageReading, TemperatureReading])
 
 @app.route('/', methods=['POST'])
 def main():
@@ -32,8 +29,10 @@ def main():
         if isinstance(form, RoverDataForm):
             items_to_save.append(GPSReading.from_rover_form(form))
             items_to_save.append(VoltageReading.from_rover_form(form))
+            items_to_save.append(TemperatureReading.from_rover_form(form))
         elif isinstance(form, BaseDataForm):
             items_to_save.append(VoltageReading.from_base_form(form))
+            items_to_save.append(TemperatureReading.from_base_form(form))
         else:
             raise NotImplementedError(f"Form type {type(item)} has no conversion to models")
         
