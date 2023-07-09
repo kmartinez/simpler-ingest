@@ -2,8 +2,7 @@ from flask import Flask, request, abort
 from peewee import SqliteDatabase
 from forms import *
 from enum import Enum
-from models.GPSReading import *
-from models.VoltageReading import *
+from models import *
 from datetime import datetime
 
 app = Flask(__name__)
