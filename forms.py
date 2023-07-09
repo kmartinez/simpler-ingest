@@ -12,8 +12,12 @@ class BaseDataForm:
             instance.temp = float(json["temp"])
             instance.timestamp = str(json["timestamp"])
             instance.batv = float(json["batv"])
-        except (KeyError, ValueError):
-            raise ValueError("JSON is invalid")
+        except ValueError as e:
+            raise ValueError(f"""JSON fields are incorrect type:
+                             {str(e)}""")
+        except KeyError as e:
+            raise ValueError(f"""JSON Does not contain required field:
+                             {str(e)}""")
         
         return instance
 
@@ -38,7 +42,11 @@ class RoverDataForm:
             instance.batv = float(json["batv"])
             instance.latitude = str(json["latitude"])
             instance.longitude = str(json["longitude"])
-        except (KeyError, ValueError):
-            raise ValueError("JSON is invalid")
+        except ValueError as e:
+            raise ValueError(f"""JSON fields are incorrect type:
+                             {str(e)}""")
+        except KeyError as e:
+            raise ValueError(f"""JSON Does not contain required field:
+                             {str(e)}""")
         
         return instance
