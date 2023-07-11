@@ -7,7 +7,7 @@ import time
 
 app = Flask(__name__)
 
-db.create_tables([GPSReading, VoltageReading, TemperatureReading])
+#db.create_tables([GPSReading, VoltageReading, TemperatureReading])
 
 
 @app.route("/<id>", methods=["GET"])
