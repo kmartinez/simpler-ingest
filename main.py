@@ -55,6 +55,10 @@ def retrieve(id):
 def ingest():
     data = request.json
 
+    with open("/var/www/html/incoming/posts.txt", "a") as file:
+        ts = datetime.now().strftime("%Y/%m/%d,%H:%M:%S, ")
+        file.write(ts + str(request.data, 'utf-8') + '\n')
+
     forms = []
     for item in data:
         try:
