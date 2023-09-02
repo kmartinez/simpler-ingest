@@ -65,12 +65,15 @@ def ingest():
             else:
                 raise ValueError("JSON does not contain required fields")
         except ValueError as e:
-            abort(
-                400,
-                f"""JSON item is invalid:
-                  {item}
-                  {str(e)}""",
-            )
+            # abort(
+            #     400,
+            #     f"""JSON item is invalid:
+            #       {item}
+            #       {str(e)}""",
+            # )
+            # I am aware what I'm doing is a cardinal sin but it's easier
+            # the embedded devices only need to know that the packet was received/processed
+            pass #Skips the invalid entry individually
 
     for form in forms:
         items_to_save = []
