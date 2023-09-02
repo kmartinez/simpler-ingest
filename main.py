@@ -1,4 +1,4 @@
-from flask import Flask, request, abort
+from flask import Flask, request, abort, jsonify
 from forms import *
 from models import *
 from peewee import IntegrityError
@@ -48,10 +48,10 @@ def retrieve(id):
         }
         dicts.append(new_dict)
     
-    return dicts
+    return jsonify(dicts)
 
 
-@app.route("/", methods=["POST"])
+@app.route("/", methods=["POST"], strict_slashes=False)
 def ingest():
     data = request.json
 
