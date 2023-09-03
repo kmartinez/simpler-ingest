@@ -15,6 +15,7 @@ def retrieve(id):
     id = int(id)
 
     # joins the tables based on rover_id and timestamp combined
+    db.connect()
     items = (TemperatureReading.select(
         TemperatureReading.rover_id.alias("rover_id"),
         TemperatureReading.timestamp.alias("timestamp"),
@@ -47,6 +48,7 @@ def retrieve(id):
             "temperature": item.temperature
         }
         dicts.append(new_dict)
+    db.close() # I'm not sure if peewee does lazy loading or not so just in case the close is here
     
     return jsonify(dicts)
 
@@ -94,6 +96,7 @@ def ingest():
                 f"Form type {type(item)} has no conversion to models"
             )
 
+        db.connect()
         for item in items_to_save:
             try:
                 item.save()
@@ -102,5 +105,6 @@ def ingest():
                 # this is usually because it's a duplicate entry (and conflicts based on rover id and timestamp)
                 # NOTE: this may be too inclusive but it's probably fine
                 print(f"Item skipped!: {str(e)}")
+        db.close()
 
     return "OK"
