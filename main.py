@@ -24,13 +24,13 @@ def retrieve(id):
         GPSReading.altitude.alias("alt"),
         VoltageReading.value.alias("voltage"),
         TemperatureReading.value.alias("temperature")
-    ).join(
-        VoltageReading,
-        on=(TemperatureReading.rover_id == VoltageReading.rover_id and TemperatureReading.timestamp == VoltageReading.timestamp)
-    ).join(
-        GPSReading,
+    ).join_from(
+        TemperatureReading, VoltageReading,
+        on=((TemperatureReading.rover_id == VoltageReading.rover_id) & (TemperatureReading.timestamp == VoltageReading.timestamp))
+    ).join_from(
+        TemperatureReading, GPSReading,
         JOIN.LEFT_OUTER,
-        on=(TemperatureReading.rover_id == GPSReading.rover_id and TemperatureReading.timestamp == GPSReading.timestamp)
+        on=((TemperatureReading.rover_id == GPSReading.rover_id) & (TemperatureReading.timestamp == GPSReading.timestamp))
     ).where(TemperatureReading.rover_id == id)
     .order_by(TemperatureReading.timestamp))
 
